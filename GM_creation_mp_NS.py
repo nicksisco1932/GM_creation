@@ -59,13 +59,6 @@ def work(path, i):
                 if fnmatch.fnmatch(g, 'mri'):
                     path2mri = os.path.join(path_2_FS, g)
                     if os.path.isfile(os.path.join(path2mri, 'GreyMM_mask.nii.gz')):
-                        #  print('Make sure GM mask is oriented correctly')
-                        # if not os.path.isfile(os.path.join(path2mri, 'GreyMM_mask_oriented.nii.gz')):
-                        #     os.system('fslreorient2std %s %s'
-                        #               % (os.path.join(path2mri, 'GreyMM_mask.nii.gz'),
-                        #                  os.path.join(path2mri, 'GreyMM_mask_oriented.nii.gz')))  # this is
-                        # not working for some reason
-                        # else:
                         pass
                     else:
                         for mgz in os.listdir(path2mri):
@@ -84,18 +77,6 @@ def work(path, i):
                             else:
                                 os.system('mri_convert %s %s' % (os.path.join(path2mri, mgz),
                                                                  os.path.join(path2mri, 'rh.ribbon.nii')))
-                            # if fnmatch.fnmatch(mgz, 'aseg.mgz'):
-                            #     os.system('mri_convert %s %s' % (os.path.join(path2mri, mgz),
-                            #                                      os.path.join(path2mri, 'aseg.nii')))
-                            #     print(mgz)
-                            # elif fnmatch.fnmatch(mgz, 'lh.ribbon.mgz'):
-                            #     os.system('mri_convert %s %s' % (os.path.join(path2mri, mgz),
-                            #                                      os.path.join(path2mri, 'lh.ribbon.nii')))
-                            # elif fnmatch.fnmatch(mgz, 'rh.ribbon.mgz'):
-                            #     os.system('mri_convert %s %s' % (os.path.join(path2mri, mgz),
-                            #                                      os.path.join(path2mri, 'rh.ribbon.nii')))
-                            # else:
-                            #     pass
                         tmp = 1
                         maths_fsl(tmp)
                         roi(tmp)
@@ -116,8 +97,6 @@ def work(path, i):
                         os.system('fslreorient2std %s %s'
                                   % (os.path.join(path2mri, 'T1_FS.nii.gz'),
                                      os.path.join(path2mri, 'T1_FS.nii.gz')))
-                        # os.system('fslmaths -dt float %s %s' % (os.path.join(path2mri, 'T1_FS.nii.gz'),
-                        # os.path.join(path2mri, 'T1_FS.nii.gz'))) # I think this is messing things up.
                     if os.path.isfile(os.path.join(path2mri, 'brain_mask_FS.nii.gz')):
                         pass
                     else:
@@ -154,8 +133,6 @@ def work(path, i):
                         os.system('fslreorient2std %s %s'
                                   % (os.path.join(path2mri, 'T1w_pre.nii.gz'),
                                      os.path.join(path2mri, 'T1w_pre.nii.gz')))
-                        # os.system('fslmaths -dt float %s %s' % (os.path.join(path2mri, 'T1w_pre.nii.gz'),
-                        #                                         os.path.join(path2mri, 'T1w_pre.nii.gz')))
 
 
 def is_running(pid):
@@ -201,22 +178,6 @@ def coreg(path, i):
                                  os.path.join(path2mri, 'T1w_pre.nii.gz'),
                                  os.path.join(path2mri, 'GM_FS_to_NATIVE.nii.gz'),
                                  os.path.join(path2mri, 'T1_FS_to_NATIVE.mat')))
-                    # else:
-                    #
-                    #     count = count + 1
-                    #     break
-                    # This next bit of code can be uncommented if a white matter mask is available.
-                    # if fnmatch.fnmatch(flirty, 'WM_FS_to_NATIVE.nii.gz'):
-                    #     os.system('flirt -in %s -ref %s -out %s -omat %s -bins 256 -cost corratio '
-                    #               '-searchrx -90 90 -searchry -90 90 -searchrz -90 90 -dof 6 -interp '
-                    #               'trilinear'
-                    #               % (os.path.join(path2mri, 'T1_FS.nii.gz'),
-                    #                  os.path.join(path2mri, 'T1w_pre.nii.gz'),
-                    #                  os.path.join(path2mri, 'GM_FS_to_NATIVE.nii.gz'),
-                    #                  os.path.join(path2mri, 'T1_FS_to_NATIVE.mat')))
-                    # else:
-                    #     pass
-
 
 def maths_fsl(tmp):
     print(tmp)
