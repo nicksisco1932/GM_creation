@@ -2,6 +2,8 @@ import fnmatch
 import multiprocessing as mp
 import os
 from time import sleep
+from tkinter import filedialog
+from tkinter import *
 
 # To run free surfer; in command line type:
 # >  export SUBJECTS_DIR=<path>
@@ -23,8 +25,12 @@ rois = ['roi_8', 'roi_9', 'roi_10', 'roi_11', 'roi_12', 'roi_13', 'roi_18', 'roi
 
 
 def main():
-    path = '/Volumes/MacOS_encrypted/Patient_data/FS_outputs'  # The path where all of the Free Surfer data resides.
-    pool = mp.Pool(processes=12)
+    # path = '/Volumes/MacOS_encrypted/Patient_data/FS_outputs'  # The path where all of the Free Surfer data resides.
+
+    root = Tk()
+    root.withdraw()
+    path = filedialog.askdirectory()
+    pool = mp.Pool(processes=os.cpu_count())
     p = []
     p2 = []
     for i in os.listdir(path):
