@@ -2,8 +2,8 @@ import fnmatch
 import multiprocessing as mp
 import os
 from time import sleep
-from tkinter import filedialog
 from tkinter import *
+from tkinter import filedialog
 
 # To run free surfer; in command line type:
 # >  export SUBJECTS_DIR=<path>
@@ -41,98 +41,103 @@ def main():
         else:
             pass
     p.get()
-    for i in os.listdir(path):
-        if os.path.isdir(os.path.join(path, i)):
-            p2 = pool.apply_async(coreg, args=(path, i))
-            print('Stage 2 finished for %s' % os.path.join(path, i))
-        else:
-            pass
-    p2.get()
+    # work(path,i)
+    # for i in os.listdir(path):
+    #     if os.path.isdir(os.path.join(path, i)):
+    #         p2 = pool.apply_async(coreg, args=(path, i))
+    #         print('Stage 2 finished for %s' % os.path.join(path, i))
+    #     else:
+    #         pass
+    # p2.get()
     print('DONE')
 
 
 def work(path, i):
-    for j in os.listdir(os.path.join(path, i)):  # start here
-        if fnmatch.fnmatch(j, 'FreeSurfer'):
-            path_2_FS = os.path.join(path, i, j)
-            for g in os.listdir(path_2_FS):
-                if fnmatch.fnmatch(g, 'mri'):
-                    path2mri = os.path.join(path_2_FS, g)
-                    if os.path.isfile(os.path.join(path2mri, 'GreyMM_mask.nii.gz')):
-                        pass
-                    else:
-                        for mgz in os.listdir(path2mri):
-                            if os.path.isdir(os.path.join(path2mri, 'aseg.nii')):
-                                pass
+    print('Doing some work for %s' % i)
+    if os.path.isdir(os.path.join(path, i)):
+        for j in os.listdir(os.path.join(path, i)):  # start here
+            if fnmatch.fnmatch(j, 'FreeSurfer'):
+                path_2_FS = os.path.join(path, i, j)
+                for g in os.listdir(path_2_FS):
+                    if fnmatch.fnmatch(g, 'mri'):
+                        path2mri = os.path.join(path_2_FS, g)
+                        if os.path.isfile(os.path.join(path2mri, 'GreyMM_mask.nii.gz')):
+                            pass
+                        else:
+                            for mgz in os.listdir(path2mri):
+                                if os.path.isdir(os.path.join(path2mri, 'aseg.nii')):
+                                    pass
+                                else:
+                                    os.system('mri_convert %s %s' % (os.path.join(path2mri, mgz),
+                                                                     os.path.join(path2mri, 'aseg.nii')))
+                                if os.path.isdir(os.path.join(path2mri, 'lh.ribbon.nii')):
+                                    pass
+                                else:
+                                    os.system('mri_convert %s %s' % (os.path.join(path2mri, mgz),
+                                                                     os.path.join(path2mri, 'lh.ribbon.nii')))
+                                if os.path.isdir(os.path.join(path2mri, 'rh.ribbon.nii')):
+                                    pass
+                                else:
+                                    os.system('mri_convert %s %s' % (os.path.join(path2mri, mgz),
+                                                                     os.path.join(path2mri, 'rh.ribbon.nii')))
+                            tmp = 1
+                            maths_fsl(tmp)
+                            roi(tmp)
+                        if os.path.isfile(os.path.join(path2mri, 'T1_FS.nii.gz')):
+                            pass
+                        else:
+                            print('Make T1_FS.nii.gz')
+                            if os.path.isfile(os.path.join(path2mri, 'T1.mgz')):
+                                os.system('mri_convert -it mgz -ot nii -i %s -o %s'
+                                          % (os.path.join(path2mri, 'T1.mgz'),
+                                             os.path.join(path2mri, 'T1_FS.nii.gz')))
                             else:
-                                os.system('mri_convert %s %s' % (os.path.join(path2mri, mgz),
-                                                                 os.path.join(path2mri, 'aseg.nii')))
-                            if os.path.isdir(os.path.join(path2mri, 'lh.ribbon.nii')):
                                 pass
-                            else:
-                                os.system('mri_convert %s %s' % (os.path.join(path2mri, mgz),
-                                                                 os.path.join(path2mri, 'lh.ribbon.nii')))
-                            if os.path.isdir(os.path.join(path2mri, 'rh.ribbon.nii')):
-                                pass
-                            else:
-                                os.system('mri_convert %s %s' % (os.path.join(path2mri, mgz),
-                                                                 os.path.join(path2mri, 'rh.ribbon.nii')))
-                        tmp = 1
-                        maths_fsl(tmp)
-                        roi(tmp)
-                    if os.path.isfile(os.path.join(path2mri, 'T1_FS.nii.gz')):
-                        pass
-                    else:
-                        print('Make T1_FS.nii.gz')
-                        if os.path.isfile(os.path.join(path2mri, 'T1.mgz')):
-                            os.system('mri_convert -it mgz -ot nii -i %s -o %s'
-                                      % (os.path.join(path2mri, 'T1.mgz'),
+                        if not os.path.isfile(os.path.join(path2mri, 'T1_FS.nii.gz')):
+                            pass
+                        else:
+                            print('Orient T1_FS.nii.gz')
+                            os.system('fslreorient2std %s %s'
+                                      % (os.path.join(path2mri, 'T1_FS.nii.gz'),
                                          os.path.join(path2mri, 'T1_FS.nii.gz')))
-                        else:
+                        if os.path.isfile(os.path.join(path2mri, 'brain_mask_FS.nii.gz')):
                             pass
-                    if not os.path.isfile(os.path.join(path2mri, 'T1_FS.nii.gz')):
-                        pass
-                    else:
-                        print('Orient T1_FS.nii.gz')
-                        os.system('fslreorient2std %s %s'
-                                  % (os.path.join(path2mri, 'T1_FS.nii.gz'),
-                                     os.path.join(path2mri, 'T1_FS.nii.gz')))
-                    if os.path.isfile(os.path.join(path2mri, 'brain_mask_FS.nii.gz')):
-                        pass
-                    else:
-                        print('Make brain_mask_FS.nii.gz')
-                        if os.path.isfile(os.path.join(path2mri, 'T1.mgz')):
-                            os.system('mri_convert -it mgz -ot nii -i %s -o %s'
-                                      % (os.path.join(path2mri, 'brainmask.mgz'),
+                        else:
+                            print('Make brain_mask_FS.nii.gz')
+                            if os.path.isfile(os.path.join(path2mri, 'T1.mgz')):
+                                os.system('mri_convert -it mgz -ot nii -i %s -o %s'
+                                          % (os.path.join(path2mri, 'brainmask.mgz'),
+                                             os.path.join(path2mri, 'brain_mask_FS.nii.gz')))
+                                os.system('fslmaths %s -bin %s' % (os.path.join(path2mri, 'brain_mask_FS.nii.gz'),
+                                                                   os.path.join(path2mri, 'brain_mask_FS.nii.gz')))
+                            else:
+                                pass
+                        if not os.path.isfile(os.path.join(path2mri, 'brain_mask_FS.nii.gz')):
+                            pass
+                        else:
+                            print('Orient brain_mask_FS.nii.gz')
+                            os.system('fslreorient2std %s %s'
+                                      % (os.path.join(path2mri, 'brain_mask_FS.nii.gz'),
                                          os.path.join(path2mri, 'brain_mask_FS.nii.gz')))
-                            os.system('fslmaths %s -bin %s' % (os.path.join(path2mri, 'brain_mask_FS.nii.gz'),
-                                                               os.path.join(path2mri, 'brain_mask_FS.nii.gz')))
-                        else:
+                        if os.path.isfile(os.path.join(path2mri, 'T1w_pre.nii.gz')):
                             pass
-                    if not os.path.isfile(os.path.join(path2mri, 'brain_mask_FS.nii.gz')):
-                        pass
-                    else:
-                        print('Orient brain_mask_FS.nii.gz')
-                        os.system('fslreorient2std %s %s'
-                                  % (os.path.join(path2mri, 'brain_mask_FS.nii.gz'),
-                                     os.path.join(path2mri, 'brain_mask_FS.nii.gz')))
-                    if os.path.isfile(os.path.join(path2mri, 'T1w_pre.nii.gz')):
-                        pass
-                    else:
-                        print('Remake T1w_pre.nii.gz')
-                        if os.path.isfile(os.path.join(path2mri, 'T1.mgz')):
-                            os.system('mri_convert -it mgz -ot nii -i %s -o %s'
-                                      % (os.path.join(path2mri, 'orig/001.mgz'),
+                        else:
+                            print('Remake T1w_pre.nii.gz')
+                            if os.path.isfile(os.path.join(path2mri, 'T1.mgz')):
+                                os.system('mri_convert -it mgz -ot nii -i %s -o %s'
+                                          % (os.path.join(path2mri, 'orig/001.mgz'),
+                                             os.path.join(path2mri, 'T1w_pre.nii.gz')))
+                            else:
+                                pass
+                        if not os.path.isfile(os.path.join(path2mri, 'T1w_pre.nii.gz')):
+                            pass
+                        else:
+                            print('Orient T1w_pre.nii.gz')
+                            os.system('fslreorient2std %s %s'
+                                      % (os.path.join(path2mri, 'T1w_pre.nii.gz'),
                                          os.path.join(path2mri, 'T1w_pre.nii.gz')))
-                        else:
-                            pass
-                    if not os.path.isfile(os.path.join(path2mri, 'T1w_pre.nii.gz')):
-                        pass
-                    else:
-                        print('Orient T1w_pre.nii.gz')
-                        os.system('fslreorient2std %s %s'
-                                  % (os.path.join(path2mri, 'T1w_pre.nii.gz'),
-                                     os.path.join(path2mri, 'T1w_pre.nii.gz')))
+    else:
+        pass
 
 
 def is_running(pid):
